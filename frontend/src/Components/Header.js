@@ -6,7 +6,7 @@ function Header() {
 
     return (
         <div className='headerbar' id='headerbar' >
-            <h1 className='header' id='header' onClick={() => navigate('/')}> Test Header </h1>
+            <h1 className='header' id='header' onClick={() => navigate('/')}>Home</h1>
             <button className='loginButton' id='loginButton' onClick={() => navigate('/login')}>Login</button>
         </div>
     )

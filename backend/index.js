@@ -13,7 +13,13 @@ app.use(cors())
 const port = 8080
 
 app.get('/', (req, res) => {
+    
     res.send('Application is up and running')
+})
+
+app.get('/items', (req, res) => {
+    knex.select('*').from('items')
+    .then(data => res.status(201).json(data))
 })
 
 app.get('/user/:manager', (req, res) => {
