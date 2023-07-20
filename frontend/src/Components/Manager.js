@@ -1,23 +1,19 @@
-import { Navigate, useNavigate, Routes, Route, Link } from 'react-router-dom';
+import Header from "./Header";
+import { useEffect } from 'react'
 
 function Manager() {
 
-
-    const navigate = useNavigate();
-
-    const dataGetter = () => {
-        fetch('http://localhost:8080/manager')
+    useEffect(() => {
+        fetch('http://localhost:8080/user/:manager')
             .then(response => response.json())
             .then(data => data)
-    }
+        }, [])
+    
 
 
     return (
         <>
-            <div className='headerbar' id='headerbar'>
-                <h1 className='header' id='header' onClick={() => navigate('/')}> Test Header </h1>
-                <button className='loginButton' id='loginButton' onClick={() => navigate('/login')}>Login</button>
-            </div>
+            <Header />
             <div>
                 <h1>Manager testing</h1>
             </div>

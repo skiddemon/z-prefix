@@ -1,14 +1,9 @@
-import { Navigate, useNavigate, Routes, Route, Link } from 'react-router-dom';
+import Header from './Header';
 
 function User() {
-    const navigate = useNavigate();
-
     return (
         <>
-            <div className='headerbar' id='headerbar'>
-                <h1 className='header' id='header' onClick={() => navigate('/')}> Test Header </h1>
-                <button className='loginButton' id='loginButton' onClick={() => navigate('/login')}>Login</button>
-            </div>
+            <Header />
             <div>
                 <h1>Browsing goes here</h1>
             </div>

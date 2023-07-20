@@ -12,7 +12,7 @@ function App() {
     <>
       <Routes>
         <Route path='/login' element={<LoginScreen />} />
-        <Route path='/:manager' element={<Manager />} />
+        <Route path='/user/:manager' element={<Manager />} />
         <Route path='/' element={<User />} />
       </Routes>
     </>
