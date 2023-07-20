@@ -1,23 +1,19 @@
-import { Navigate, useNavigate, Routes, Route } from 'react-router-dom';
+import { Navigate, useNavigate, Routes, Route, Link } from 'react-router-dom';
 import Manager from './Components/Manager'
 import User from './Components/User'
-import Home from './Components/Home'
+import LoginScreen from './Components/LoginScreen'
 
 import './App.css';
 
 function App() {
   const navigate = useNavigate();
-  
+
   return (
     <>
-      <div className='headerbar' id='headerbar'>
-        <h1 className='header' id='header' onClick={() => navigate('/')}> Test Header </h1>
-      </div>
-
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/login' element={<LoginScreen />} />
         <Route path='/:manager' element={<Manager />} />
-        <Route path='/browse' element={<User />} />
+        <Route path='/' element={<User />} />
       </Routes>
     </>
   );

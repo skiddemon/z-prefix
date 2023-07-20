@@ -8,9 +8,11 @@ module.exports = {
   development: {
     client: 'postgresql',
     connection: {
-      database: 'inventory_management_system',
-      
-      filename: './dev.sqlite3'
+      host: 'database',
+      user: 'postgres',
+      password: 'docker',
+      port: 5432,
+      database: 'inventory_management_system'
     }
   },
 
