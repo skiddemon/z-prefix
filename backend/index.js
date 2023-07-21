@@ -8,10 +8,19 @@ const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const { auth } = require('./auth.js');
 
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,withcredentials');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
+
 app.use(express.json())
-app.use(cors())
+app.use(cookieParser())
 
 const port = 8080
+
 
 app.get('/', (req, res) => {
     res.send('Application is up and running')
@@ -23,37 +32,6 @@ app.get('/items', (req, res) => {
 })
 
 app.post('/user/:manager', (req, res) => {
-    console.log(req.body)
-    let { username, password } = req.body
-    let { manager } = req.params
-
-    knex('users').select('username').where({ username: username })
-        .then(data => {
-            console.log(data[0])
-            if (data[0].username === username) {
-                console.log('username found')
-                knex('users').select('hash').where({ username: manager })
-                    .then(data => data[0].hash)
-                    .then(hashedPass => {
-                        bcrypt.compare(password, hashedPass).then(function (result) {
-                            if (result === true) {
-                                knex('users').where({ username: manager })
-                                    .then(data => {
-                                        res.cookie('authToken', 'test');
-                                        res.status(201).send(data);
-                                    })
-                                console.log(`Auth sucessful for ${username}`)
-                            } else {
-                                console.log(`Auth failed for ${username}`)
-                                res.status(401).send('Authentication failed')
-                            }
-                        })
-                    })
-            } else {
-                console.log('username not found')
-                res.status(400).send('Username not found')
-            }
-        })
 })
 
 app.post('/signup', (req, res) => {
@@ -79,19 +57,46 @@ app.get('/login', (req, res) => {
             res.status(201).json(data);
 
         })
-
 })
 
 app.post('/login', (req, res) => {
-    //console.log(JSON.stringify(req.body))
-    const { username, password } = req.body;
-    console.log(username)
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-        knex('users').insert({ username: username, hash: hash })
-            .then(() => {
-                knex.select().from('users').then((users) => res.send(users))
-            })
-    })
+    console.log(req.body)
+    let { username, password } = req.body
+
+    knex('users').select('username').where({ username: username })
+        .then(data => {
+            console.log(data[0])
+            if (data[0].username === username) {
+                console.log('username found')
+                knex('users').select('hash').where({ username: username })
+                    .then(data => data[0].hash)
+                    .then(hashedPass => {
+                        bcrypt.compare(password, hashedPass).then(function (result) {
+                            if (result === true) {
+                                knex('users').where({ username: username })
+                                    .then(data => {
+                                        var opts = {
+                                            maxAge: 600000,
+                                            httpOnly: true,
+                                            sameSite: 'strict'
+                                        };
+                                        console.log('cookie', username)
+                                        //req.session.username = req.body.username
+                                        res.cookie('authToken', 'test', opts);
+                                        res.status(201).send(data);
+                                    })
+                                console.log(`Auth sucessful for ${username}`)
+                            } else {
+                                console.log(`Auth failed for ${username}`)
+                                res.status(401).send('Authentication failed')
+                            }
+                        })
+                    })
+            } else {
+                console.log('username not found')
+                res.status(400).send('Username not found')
+            }
+        })
 })
 
 // function setUser(req, res, next) {

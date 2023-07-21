@@ -44,17 +44,20 @@ function LoginScreen() {
             const myHeaders = new Headers();
             myHeaders.append("Content-type", "application/json");
             myHeaders.append("Accept", "application/json");
+            myHeaders.append("withCredentials", true)
             const creds = {
                 username: username,
                 password: password
             }
 
-            await fetch(`http://localhost:8080/user/${username}`, {
+            await fetch(`http://localhost:8080/login`, {
                 method: "POST",
                 headers: myHeaders,
+                credentials: 'include',
                 body: JSON.stringify(creds)
             })
                 .then(response => {
+                    console.log(response)
                     if (response.status !== 201) {
                         setIsBadPass(true)
                         throw new Error('Password does not match')
@@ -64,6 +67,8 @@ function LoginScreen() {
                 })
                 .then(data => {
                     if (data.length > 0) {
+                        console.log('checking for cookies')
+                        // window.localStorage.setItem("loggedIn", true)
                         navigate(`/user/${data[0].username}`)
                     } else {
                         setNoUserAlert(true)
