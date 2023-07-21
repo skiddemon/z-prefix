@@ -4,8 +4,9 @@ const knex = require("knex")(require("./knexfile.js")["development"]);
 const cors = require("cors");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session')
 const { auth } = require('./auth.js');
-
 
 app.use(express.json())
 app.use(cors())
@@ -13,19 +14,46 @@ app.use(cors())
 const port = 8080
 
 app.get('/', (req, res) => {
-    
     res.send('Application is up and running')
 })
 
 app.get('/items', (req, res) => {
     knex.select('*').from('items')
-    .then(data => res.status(201).json(data))
+        .then(data => res.status(201).json(data))
 })
 
-app.get('/user/:manager', (req, res) => {
+app.post('/user/:manager', (req, res) => {
+    console.log(req.body)
+    let { username, password } = req.body
     let { manager } = req.params
-    knex.select('*').from('users').where({ username: manager })
-        .then(data => res.status(201).json(data))
+
+    knex('users').select('username').where({ username: username })
+        .then(data => {
+            console.log(data[0])
+            if (data[0].username === username) {
+                console.log('username found')
+                knex('users').select('hash').where({ username: manager })
+                    .then(data => data[0].hash)
+                    .then(hashedPass => {
+                        bcrypt.compare(password, hashedPass).then(function (result) {
+                            if (result === true) {
+                                knex('users').where({ username: manager })
+                                    .then(data => {
+                                        res.cookie('authToken', 'test');
+                                        res.status(201).send(data);
+                                    })
+                                console.log(`Auth sucessful for ${username}`)
+                            } else {
+                                console.log(`Auth failed for ${username}`)
+                                res.status(401).send('Authentication failed')
+                            }
+                        })
+                    })
+            } else {
+                console.log('username not found')
+                res.status(400).send('Username not found')
+            }
+        })
 })
 
 app.post('/signup', (req, res) => {
@@ -38,16 +66,19 @@ app.post('/signup', (req, res) => {
             username: username,
             hash: hash
         })
-        .then(() => {
-            knex.select().from('users').where({ username: username })
-            .then(newUser => res.status(200).send(newUser))
-        })
+            .then(() => {
+                knex.select().from('users').where({ username: username })
+                    .then(newUser => res.status(200).send(newUser))
+            })
     })
 })
 
 app.get('/login', (req, res) => {
     knex.select().from('users')
-        .then(data => res.status(201).json(data))
+        .then(data => {
+            res.status(201).json(data);
+
+        })
 
 })
 
@@ -73,5 +104,4 @@ app.post('/login', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Application running on ${port}.`)
-
 })

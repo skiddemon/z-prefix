@@ -4,7 +4,7 @@ import Header from './Header';
 import React from 'react';
 
 function LoginScreen() {
-    const [logon, setLogon] = useState('user');
+    const navigate = useNavigate();
 
     //below sets states for fetching users from database
     const [username, setUsername] = useState('');
@@ -16,40 +16,65 @@ function LoginScreen() {
     const [existingUsername, setExistingUsername] = useState([]);
 
     //should probably delete this from login, change to /items, and put in browse
-    const [backendData, setBackendData] = useState([{}]);
+    //const [backendData, setBackendData] = useState([{}]);
 
     //used to conditinally render create new account popup
     const [noUserAlert, setNoUserAlert] = useState(false);
 
-    const navigate = useNavigate();
+    //doesn't allow empty username or password
+    const [loginAlert, setLoginAlert] = useState(false)
+
+    //trying to use for loading issue
+    const [isLoading, setIsLoading] = useState(true)
+
+    const [isBadPass, setIsBadPass] = useState(false)
 
     //should probably delete this from login, change to /items, and put in browse
-    useEffect(() => {
-        fetch('http://localhost:8080/login')
-            .then(response => response.json())
-            .then(data => setBackendData(data))
-    }, [])
+    // useEffect(() => {
+    //     fetch('http://localhost:8080/login')
+    //         .then(response => response.json())
+    //         .then(data => setBackendData(data))
+    // }, [])
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const data = { username: username, password: password };
-        await fetch(`http://localhost:8080/user/${username}`)
-            .then(response => response.json())
-            .then(data => console.log(data))
-
-        if (existingUsername === username) {
+        if (username === '' || password === '') {
+            setLoginAlert(true)
+        } else {
             const myHeaders = new Headers();
             myHeaders.append("Content-type", "application/json");
             myHeaders.append("Accept", "application/json");
-            await fetch('http://localhost:8080/login', {
+            const creds = {
+                username: username,
+                password: password
+            }
+
+            await fetch(`http://localhost:8080/user/${username}`, {
                 method: "POST",
                 headers: myHeaders,
-                body: JSON.stringify(data)
-            }).then(() => { navigate(`/user/${username}`) })
-        } else {
-            setNoUserAlert(true)
+                body: JSON.stringify(creds)
+            })
+                .then(response => {
+                    if (response.status !== 201) {
+                        setIsBadPass(true)
+                        throw new Error('Password does not match')
+                    } else {
+                        return response.json()
+                    }
+                })
+                .then(data => {
+                    if (data.length > 0) {
+                        navigate(`/user/${data[0].username}`)
+                    } else {
+                        setNoUserAlert(true)
+                    }
+                })
+                .catch(error => console.error(error))
         }
     }
+
+
+
 
     const handleCreateAccount = async (event) => {
         event.preventDefault();
@@ -62,7 +87,6 @@ function LoginScreen() {
             username: username,
             password: password
         };
-        console.log(data)
         await fetch("http://localhost:8080/signup", {
             method: "POST",
             headers: myHeaders,
@@ -70,6 +94,13 @@ function LoginScreen() {
         })
             .then(() => { navigate(`/user/${username}`) })
     }
+
+
+
+
+
+
+
 
     return (
         <>
@@ -85,19 +116,12 @@ function LoginScreen() {
                 </form >
             </div>
 
-            <div>
-                {(typeof backendData[0].username === undefined)
-                    ?
-                    (console.log(backendData[0].username)
-                        , <p>Loading...</p>)
-                    :
-                    (
-                        backendData.map(
-                            (user, i) => (<p key={i} >{user.username}</p>)
-                        )
-                    )}
-            </div>
-            {noUserAlert ?
+            {loginAlert == false ? '' : <p>Please fill out all fields before submitting</p>}
+
+            {isBadPass == false ? '' : <p>Password is incorrect.  Please try again.</p>}
+
+            {noUserAlert
+                ?
                 <div className='create-user-popup'>
                     <div className='create-user-popup-header'>
                         <h2>User does not exist.</h2>
@@ -111,7 +135,9 @@ function LoginScreen() {
                         </form >
                     </div>
                 </div>
-                : ""}
+                :
+                ""
+            }
         </>
     )
 }

@@ -1,9 +1,6 @@
 import Header from './Header';
 import { useEffect, useState } from 'react'
 
-
-
-
 function User() {
     useEffect(() => {
         fetch('http://localhost:8080/items')

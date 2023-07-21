@@ -3,11 +3,11 @@ import { useEffect } from 'react'
 
 function Manager() {
 
-    useEffect(() => {
-        fetch('http://localhost:8080/user/:manager')
-            .then(response => response.json())
-            .then(data => data)
-        }, [])
+    // useEffect(() => {
+    //     fetch('http://localhost:8080/user/:manager')
+    //         .then(response => response.json())
+    //         .then(data => data)
+    //     }, [])
     
 
 
