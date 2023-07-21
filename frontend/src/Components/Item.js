@@ -1,9 +1,9 @@
 import Header from './Header';
 import { useEffect, useState } from 'react'
 
-function User() {
+function Item() {
     useEffect(() => {
-        fetch('http://localhost:8080/items')
+        fetch('http://localhost:8080/items/:manager')
             .then(response => response.json())
             .then(data => {
                 setItems(data);
@@ -46,4 +46,4 @@ function User() {
     )
 }
 
-export default User
+export default Item

@@ -31,7 +31,43 @@ app.get('/items', (req, res) => {
         .then(data => res.status(201).json(data))
 })
 
+app.post('/items', (req, res) => {
+    const {userid, itemname, description, quantity} = req.body
+    console.log(typeof userid, userid)
+    console.log(typeof itemname, itemname)
+    console.log(typeof description, description)
+    console.log(typeof quantity, quantity)
+  
+    knex('items').insert({
+        userid: userid,
+        itemname: itemname,
+        description: description,
+        quantity: quantity
+    })
+    res.send('Well it got here')
+})
+
+
+app.get('/items/:manager', (req, res) => {
+    const user = req.params.manager
+    knex.select("id").from('users').where({ username: user })
+        .then(id => {
+            console.log('bigdick test',id)
+            return id[0].id
+        })
+        .then(id => {
+            console.log('id before knex', id)
+            if (id !== undefined) {
+                knex.select('*').from('items').where({ userid: id })
+                    .then(data => res.status(201).send(data))
+            } else {
+                res.status(401).send("Action not permitted")
+            }
+        })
+})
+
 app.post('/user/:manager', (req, res) => {
+    console.log(req.cookies.authToken)
 })
 
 app.post('/signup', (req, res) => {
@@ -55,19 +91,17 @@ app.get('/login', (req, res) => {
     knex.select().from('users')
         .then(data => {
             res.status(201).json(data);
-
         })
 })
 
-app.post('/login', (req, res) => {
-    console.log(req.body)
-    let { username, password } = req.body
 
-    knex('users').select('username').where({ username: username })
+app.post('/login', (req, res) => {
+    let { username, password } = req.body
+    knex('users').select('id', 'username').where({ username: username })
         .then(data => {
-            console.log(data[0])
+            console.log('SELECT', data[0].id)
             if (data[0].username === username) {
-                console.log('username found')
+                console.log(`Username: ${username} found`)
                 knex('users').select('hash').where({ username: username })
                     .then(data => data[0].hash)
                     .then(hashedPass => {
@@ -77,12 +111,10 @@ app.post('/login', (req, res) => {
                                     .then(data => {
                                         var opts = {
                                             maxAge: 600000,
-                                            httpOnly: true,
                                             sameSite: 'strict'
                                         };
-                                        console.log('cookie', username)
-                                        //req.session.username = req.body.username
-                                        res.cookie('authToken', 'test', opts);
+                                        res.cookie('authToken', username, opts);
+                                        res.cookie('userID', data[0].id)
                                         res.status(201).send(data);
                                     })
                                 console.log(`Auth sucessful for ${username}`)

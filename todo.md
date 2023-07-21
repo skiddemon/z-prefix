@@ -1,10 +1,10 @@
 # Z-Prefix To-do list:
 
-### 1. As an inventory manager I want to be able to create an account so that I can track my inventory.
+### ~~1. As an inventory manager I want to be able to create an account so that I can track my inventory.~~
 - Create login page with username/password. (Put login div in header or have a whole login page?  Default page for users?)
 
-### 2. As an inventory manager I want to be able to log into my account so that I can see my inventory of items.
-    After logging in, the inventory manager should be redirected to their inventory of items.
+### ~~2. As an inventory manager I want to be able to log into my account so that I can see my inventory of items.~~
+    ~~After logging in, the inventory manager should be redirected to their inventory of items.~~
 - Create redirect.  Redirect should fetch inventory from username's inventory only
     - If page does not exist, show error page.
     - If page does exist but loggedIn != true, show "cannot access this page"

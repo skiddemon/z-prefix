@@ -67,7 +67,6 @@ function LoginScreen() {
                 })
                 .then(data => {
                     if (data.length > 0) {
-                        console.log('checking for cookies')
                         // window.localStorage.setItem("loggedIn", true)
                         navigate(`/user/${data[0].username}`)
                     } else {
@@ -77,9 +76,6 @@ function LoginScreen() {
                 .catch(error => console.error(error))
         }
     }
-
-
-
 
     const handleCreateAccount = async (event) => {
         event.preventDefault();
@@ -99,13 +95,6 @@ function LoginScreen() {
         })
             .then(() => { navigate(`/user/${username}`) })
     }
-
-
-
-
-
-
-
 
     return (
         <>
